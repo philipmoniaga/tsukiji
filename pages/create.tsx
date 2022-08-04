@@ -62,6 +62,10 @@ const Create: NextPage = () => {
       endTime: duration
         ? (Math.floor(Date.now() / 1000) + duration).toString()
         : undefined,
+      fees:[{
+        recipient: "0x0c0d274060766d0F8DcDebc8c4B305a3e8a676C0",
+        basisPoints:  2
+      }]
     };
 
     const { executeAllActions } = await seaport?.createOrder(
@@ -71,7 +75,7 @@ const Create: NextPage = () => {
 
     const res = await executeAllActions();
     setOrder(res);
-
+    console.log(res)
     const orderToSave: OrderWithMetadata = {
       id: CRC32.str(res.signature).toString(),
       order: res,
@@ -79,6 +83,12 @@ const Create: NextPage = () => {
       considerations: considerationItems,
     };
 
+    const { executeAllActions: executeAllFulfillActions  } = await seaport.fulfillOrder({
+      order: res,
+      accountAddress: accountData.address,
+    });
+    const transaction = executeAllFulfillActions();
+    console.log(transaction)
     await saveOrder(orderToSave);
     setTxnSuccess(true);
     setLoading(false);
